@@ -2,9 +2,6 @@
 
 DHT22::DHT22(int dht_pin)
 {
-    if (wiringPiSetup() == -1)
-        throw "Failed to initialize wiringPi\n";
-
     this->dht_pin = dht_pin;
 }
 
@@ -74,9 +71,6 @@ map<string, float> DHT22::read_dht_data()
 
     map<string, float> output_data{{"temperature", -1}, {"humidity", -1}};
 
-    cout << this->dht_pin << " AQUI" << endl;
-    cout << data[0] << " " << data[2] << " " << (float)(((data[2] & 0x7F) << 8) + data[3]) / 10 << endl;
-
     if ((j >= 40) && (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)))
     {
         float h = (float)((data[0] << 8) + data[1]) / 10;
@@ -95,8 +89,6 @@ map<string, float> DHT22::read_dht_data()
         }
         output_data["temperature"] = c;
         output_data["humidity"] = h;
-
-        cout << "ENTREI" << endl;
     }
 
     return output_data;
