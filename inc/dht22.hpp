@@ -1,3 +1,6 @@
+#ifndef DHT22_HPP
+#define DHT22_HPP
+
 #include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,3 +29,5 @@ public:
 
     map<string, float> get_temperature();
 };
+
+#endif
