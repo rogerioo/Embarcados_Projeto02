@@ -1,0 +1,114 @@
+[
+    {
+        "gpio": 2,
+        "wiringpi": 8
+    },
+    {
+        "gpio": 3,
+        "wiringpi": 9
+    },
+    {
+        "gpio": 4,
+        "wiringpi": 7
+    },
+    {
+        "gpio": 17,
+        "wiringpi": 0
+    },
+    {
+        "gpio": 27,
+        "wiringpi": 2
+    },
+    {
+        "gpio": 22,
+        "wiringpi": 3
+    },
+    {
+        "gpio": 10,
+        "wiringpi": 12
+    },
+    {
+        "gpio": 9,
+        "wiringpi": 13
+    },
+    {
+        "gpio": 11,
+        "wiringpi": 14
+    },
+    {
+        "gpio": 0,
+        "wiringpi": 30
+    },
+    {
+        "gpio": 5,
+        "wiringpi": 21
+    },
+    {
+        "gpio": 6,
+        "wiringpi": 22
+    },
+    {
+        "gpio": 13,
+        "wiringpi": 23
+    },
+    {
+        "gpio": 19,
+        "wiringpi": 24
+    },
+    {
+        "gpio": 26,
+        "wiringpi": 25
+    },
+    {
+        "gpio": 14,
+        "wiringpi": 15
+    },
+    {
+        "gpio": 15,
+        "wiringpi": 16
+    },
+    {
+        "gpio": 18,
+        "wiringpi": 1
+    },
+    {
+        "gpio": 23,
+        "wiringpi": 4
+    },
+    {
+        "gpio": 24,
+        "wiringpi": 5
+    },
+    {
+        "gpio": 25,
+        "wiringpi": 6
+    },
+    {
+        "gpio": 8,
+        "wiringpi": 10
+    },
+    {
+        "gpio": 7,
+        "wiringpi": 11
+    },
+    {
+        "gpio": 1,
+        "wiringpi": 31
+    },
+    {
+        "gpio": 12,
+        "wiringpi": 26
+    },
+    {
+        "gpio": 16,
+        "wiringpi": 27
+    },
+    {
+        "gpio": 20,
+        "wiringpi": 28
+    },
+    {
+        "gpio": 21,
+        "wiringpi": 29
+    }
+]
