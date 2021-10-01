@@ -6,19 +6,41 @@ using void_function = void (*)();
 
 const int MAX{101};
 
-map<int, pair<string, string>> sensors;
+map<int, sensor_info> sensors;
 static array<void_function, MAX> pin_event_handler;
 
-void handle_event(pair<string, string> info)
+bool is_in(const string &v, initializer_list<string> lst)
 {
-    cout << info.first << " " << info.second << endl;
+    return find(begin(lst), end(lst), v) != end(lst);
+}
+
+void handle_event(sensor_info *info)
+{
+    auto now = time(0);
+    auto diff = difftime(now, info->last_change);
+
+    info->last_change = now;
+
+    if (diff < IGNORE_CHANGE_BELOW_SEC)
+        return;
+
+    printf("%.4lf\n", diff);
+
+    if (is_in(info->type, {"lampada", "ar-condicionado", "aspersor"}))
+    {
+        //
+
+        return;
+    }
+
+    cout << info->tag << " " << info->type << endl;
 }
 
 template <int pin>
 auto callback_generator()
 {
     return []()
-    { handle_event(sensors[pin]); };
+    { handle_event(&sensors[pin]); };
 }
 
 template <int N>
@@ -36,6 +58,7 @@ void instantiate_callbacks()
 GPIO::GPIO(string sensors_json_path)
 {
     map<int, int> gpio_to_wiringpi_pin;
+    auto start_time = time(0);
 
     ifstream pfs("json/pins_conversion.json");
     json jf = json::parse(pfs);
@@ -50,7 +73,7 @@ GPIO::GPIO(string sensors_json_path)
 
     for (auto &sensor_info : jf["outputs"])
     {
-        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"]};
+        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"], start_time};
 
         pinMode(gpio_to_wiringpi_pin[sensor_info["gpio"]], OUTPUT);
         wiringPiISR(gpio_to_wiringpi_pin[sensor_info["gpio"]], INT_EDGE_BOTH,
@@ -59,7 +82,7 @@ GPIO::GPIO(string sensors_json_path)
 
     for (auto &sensor_info : jf["inputs"])
     {
-        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"]};
+        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"], start_time};
 
         pinMode(gpio_to_wiringpi_pin[sensor_info["gpio"]], INPUT);
         wiringPiISR(gpio_to_wiringpi_pin[sensor_info["gpio"]], INT_EDGE_BOTH,
