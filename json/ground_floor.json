@@ -1,6 +1,6 @@
 {
     "ip": "192.168.0.53",
-    "porta": 1001,
+    "porta": 10126,
     "nome": "Térreo",
     "outputs": [
         {
