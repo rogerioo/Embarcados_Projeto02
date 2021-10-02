@@ -3,8 +3,9 @@
 
 #include <iostream>
 
-#include <dht22.hpp>
 #include <gpio.hpp>
+#include <dht22.hpp>
+#include <socket.hpp>
 
 GPIO *gpio;
 
@@ -22,6 +23,10 @@ int main(int argc, char const *argv[])
 
     DHT22 *sensor = new DHT22(28);
     gpio = new GPIO("json/" + string(file) + ".json");
+
+    Socket socket("", 10126);
+
+    socket.receive_data();
 
     for (const auto &item : sensor->get_temperature())
         cout << item.first << " " << item.second << endl;
