@@ -7,7 +7,7 @@ using void_function = void (*)();
 const int MAX{101};
 
 map<int, sensor_info> sensors;
-static array<void_function, MAX> pin_event_handler;
+array<void_function, MAX> pin_event_handler;
 
 bool is_in(const string &v, initializer_list<string> lst)
 {
@@ -57,7 +57,6 @@ void instantiate_callbacks()
 
 GPIO::GPIO(string sensors_json_path)
 {
-    map<int, int> gpio_to_wiringpi_pin;
     auto start_time = time(0);
 
     ifstream pfs("json/pins_conversion.json");
@@ -92,4 +91,10 @@ GPIO::GPIO(string sensors_json_path)
 
 GPIO::~GPIO()
 {
+}
+
+void GPIO::toggle_output_sensor(int gpio, int signal)
+{
+    pinMode(gpio_to_wiringpi_pin[gpio], OUTPUT);
+    digitalWrite(gpio_to_wiringpi_pin[gpio], signal);
 }

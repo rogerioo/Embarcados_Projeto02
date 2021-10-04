@@ -28,9 +28,12 @@ extern map<int, sensor_info> sensors;
 class GPIO
 {
 private:
+    map<int, int> gpio_to_wiringpi_pin;
 public:
     GPIO(string sensors_json_path);
     ~GPIO();
+
+    void toggle_output_sensor(int gpio, int signal);
 };
 
 #endif
