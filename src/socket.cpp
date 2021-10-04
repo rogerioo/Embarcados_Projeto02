@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Socket::Socket(string ip, int port) : address({0}), server_mode(ip == "" ? true : false), socket_id(0), ip(ip), port(port)
+Socket::Socket(string ip, int port) : address({0}), client_socket_id(0), server_mode(ip == "" ? true : false), socket_id(0), ip(ip), port(port)
 {
     if ((socket_id = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
@@ -58,7 +58,6 @@ string Socket::receive_data()
 {
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
-    int client_socket_id;
     int read_bytes;
 
     if ((client_socket_id = accept(socket_id, (struct sockaddr *)&address,
@@ -76,8 +75,6 @@ string Socket::receive_data()
 
     printf("%s\n", buffer);
 
-    close(client_socket_id);
-
     string output(buffer);
 
     return output;
@@ -85,11 +82,18 @@ string Socket::receive_data()
 
 int Socket::send_data(string message)
 {
-    if (send(socket_id, (const void *)message.c_str(), message.length(), 0) != (ssize_t)message.length())
+    auto current_socket_id = server_mode ? client_socket_id : socket_id;
+
+    if (send(current_socket_id, (const void *)message.c_str(), message.length(), 0) != (ssize_t)message.length())
     {
         printf("Error: Send failed\n");
         return 1;
     }
 
     return 0;
+}
+
+void Socket::close_client_connection()
+{
+    close(client_socket_id);
 }

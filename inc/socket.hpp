@@ -14,6 +14,7 @@ class Socket
 {
 private:
     struct sockaddr_in address;
+    int client_socket_id;
     bool server_mode;
     int socket_id;
     string ip;
@@ -28,6 +29,8 @@ public:
 
     int send_data(string message);
     string receive_data();
+
+    void close_client_connection();
 };
 
 #endif
