@@ -1,16 +1,31 @@
 #include <wiringPi.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <iostream>
+#include <thread>
 
-#include <gpio.hpp>
-#include <dht22.hpp>
-#include <socket.hpp>
+#include <server.hpp>
 
-GPIO *gpio;
+using namespace std;
+
+bool end_program = false;
+
+Server *server;
+
+thread *server_run;
+
+void quit(int signal)
+{
+    end_program = true;
+
+    delete server_run;
+}
 
 int main(int argc, char const *argv[])
 {
+    signal(SIGINT, quit);
+
     if (argc <= 1)
         cout << "You MUST pass which floor you want to control" << endl,
             cout << "\n(0)ground_floor | (1)first_floor" << endl,
@@ -21,18 +36,11 @@ int main(int argc, char const *argv[])
 
     auto file = strcmp(argv[1], "0") == 0 ? "ground_floor" : "first_floor";
 
-    DHT22 *sensor = new DHT22(28);
-    gpio = new GPIO("json/" + string(file) + ".json");
+    server = new Server("json/" + string(file) + ".json");
 
-    Socket socket("", 10126);
+    server_run = new thread(&Server::run, server);
 
-    socket.receive_data();
-
-    for (const auto &item : sensor->get_temperature())
-        cout << item.first << " " << item.second << endl;
-
-    while (1)
-        sleep(1);
+    server_run->join();
 
     return 0;
 }
