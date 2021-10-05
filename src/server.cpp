@@ -4,7 +4,7 @@ Server::Server(string config_file_path)
 {
     gpio = new GPIO(config_file_path);
 
-    socket = new Socket("", 10126);
+    socket = new Socket("", 8080);
 
     dht22 = new DHT22(28);
 }
