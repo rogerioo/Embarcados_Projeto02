@@ -1,6 +1,6 @@
 {
-    "ip": "192.168.0.53",
-    "porta": 10126,
+    "ip": "192.168.0.22",
+    "porta": 8032,
     "nome": "Térreo",
     "outputs": [
         {
@@ -14,7 +14,7 @@
             "gpio": 17
         },
         {
-            "type": "lampada",
+            "type": "lampada corredor",
             "tag": "Lâmpadas do Corredor Terreo",
             "gpio": 27
         },
@@ -64,6 +64,11 @@
             "type": "contagem",
             "tag": "Sensor de Contagem de Pessoas Saindo do Prédio",
             "gpio": 19
+        },
+        {
+            "type": "temperatura",
+            "tag": "Sensor de temperatura DHT22",
+            "gpio": 20
         }
     ]
 }
