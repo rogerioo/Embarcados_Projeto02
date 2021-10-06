@@ -73,8 +73,6 @@ string Socket::receive_data()
         exit(EXIT_FAILURE);
     }
 
-    printf("%s\n", buffer);
-
     string output(buffer);
 
     return output;

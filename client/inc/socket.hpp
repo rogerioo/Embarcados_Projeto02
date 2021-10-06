@@ -6,9 +6,29 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <sstream>
 #include <string>
 
 using namespace std;
+
+struct request_toggle
+{
+    int gpio;
+    int signal;
+
+    string to_json() const
+    {
+        ostringstream output;
+
+        output << "{"
+               << "\"option\": \"toggle\", "
+               << "\"gpio\": " << gpio << ", "
+               << "\"signal\": " << signal
+               << "}";
+
+        return output.str();
+    }
+} typedef request;
 
 class Socket
 {
