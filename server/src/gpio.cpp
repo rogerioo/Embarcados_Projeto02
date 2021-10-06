@@ -26,12 +26,9 @@ void handle_event(sensor_info *info)
 
     printf("%.4lf\n", diff);
 
-    if (is_in(info->type, {"lampada", "ar-condicionado", "aspersor"}))
-    {
-        //
+    Socket client_socket(CENTRAL_IP, CENTRAL_PORT);
 
-        return;
-    }
+    client_socket.send_data(info->to_json());
 
     cout << info->tag << " " << info->type << endl;
 }
@@ -55,33 +52,38 @@ void instantiate_callbacks()
         pin_event_handler[0] = callback_generator<0>();
 }
 
-GPIO::GPIO(string sensors_json_path)
+GPIO::GPIO(json config_file)
 {
     auto start_time = time(0);
 
     ifstream pfs("json/pins_conversion.json");
-    json jf = json::parse(pfs);
+    json pins_file = json::parse(pfs);
 
-    for (auto &pin_info : jf)
+    for (auto &pin_info : pins_file)
         gpio_to_wiringpi_pin[pin_info["gpio"]] = pin_info["wiringpi"];
-
-    ifstream sfs(sensors_json_path);
-    jf = json::parse(sfs);
 
     instantiate_callbacks<MAX>();
 
-    for (auto &sensor_info : jf["outputs"])
+    for (auto &sensor_info : config_file["outputs"])
     {
-        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"], start_time};
+        sensors[sensor_info["gpio"]] = {sensor_info["gpio"], sensor_info["tag"], sensor_info["type"], start_time};
 
         pinMode(gpio_to_wiringpi_pin[sensor_info["gpio"]], OUTPUT);
+        digitalWrite(gpio_to_wiringpi_pin[sensor_info["gpio"]], 0);
+
         wiringPiISR(gpio_to_wiringpi_pin[sensor_info["gpio"]], INT_EDGE_BOTH,
                     pin_event_handler[sensor_info["gpio"].get<int>()]);
     }
 
-    for (auto &sensor_info : jf["inputs"])
+    for (auto &sensor_info : config_file["inputs"])
     {
-        sensors[sensor_info["gpio"]] = {sensor_info["tag"], sensor_info["type"], start_time};
+        if (sensor_info["type"] == "temperatura")
+        {
+            dht22 = new DHT22(gpio_to_wiringpi_pin[sensor_info["gpio"]]);
+            continue;
+        }
+
+        sensors[sensor_info["gpio"]] = {sensor_info["gpio"], sensor_info["tag"], sensor_info["type"], start_time};
 
         pinMode(gpio_to_wiringpi_pin[sensor_info["gpio"]], INPUT);
         wiringPiISR(gpio_to_wiringpi_pin[sensor_info["gpio"]], INT_EDGE_BOTH,
@@ -91,10 +93,22 @@ GPIO::GPIO(string sensors_json_path)
 
 GPIO::~GPIO()
 {
+    if (dht22 != nullptr)
+        delete dht22;
 }
 
 void GPIO::toggle_output_sensor(int gpio, int signal)
 {
     pinMode(gpio_to_wiringpi_pin[gpio], OUTPUT);
     digitalWrite(gpio_to_wiringpi_pin[gpio], signal);
+}
+
+map<string, float> GPIO::get_temperature()
+{
+    map<string, float> output;
+
+    if (dht22 != nullptr)
+        output = dht22->get_temperature();
+
+    return output;
 }
