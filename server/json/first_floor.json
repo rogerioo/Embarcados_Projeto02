@@ -15,7 +15,7 @@
         },
         {
             "type": "lampada corredor",
-            "tag": "Lâmpadas do Corredor",
+            "tag": "Lâmpadas do Corredor L01",
             "gpio": 8
         },
         {
@@ -27,12 +27,12 @@
     "inputs": [
         {
             "type": "presenca",
-            "tag": "Sensor de Presença",
+            "tag": "Sensor de Presença P101",
             "gpio": 18
         },
         {
             "type": "fumaca",
-            "tag": "Sensor de Fumaça",
+            "tag": "Sensor de Fumaça F101",
             "gpio": 24
         },
         {
@@ -44,6 +44,11 @@
             "type": "janela",
             "tag": "Sensor de Janela 102",
             "gpio": 6
+        },
+        {
+            "type": "temperatura",
+            "tag": "Sensor de temperatura DHT22 T101",
+            "gpio": 21
         }
     ]
 }

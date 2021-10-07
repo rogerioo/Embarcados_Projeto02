@@ -25,34 +25,34 @@
         },
         {
             "type": "aspersor",
-            "tag": "Aspersor de Água (Incêndio)",
+            "tag": "Aspersor de Agua (Incêndio)",
             "gpio": 16
         }
     ],
     "inputs": [
         {
             "type": "presenca",
-            "tag": "Sensor de Presença",
+            "tag": "Sensor de Presença P001",
             "gpio": 26
         },
         {
             "type": "fumaca",
-            "tag": "Sensor de Fumaça",
+            "tag": "Sensor de Fumaça T001",
             "gpio": 23
         },
         {
             "type": "janela",
-            "tag": "Sensor de Janela T01",
+            "tag": "Sensor de Janela T001",
             "gpio": 9
         },
         {
             "type": "janela",
-            "tag": "Sensor de Janela T02",
+            "tag": "Sensor de Janela T002",
             "gpio": 11
         },
         {
             "type": "porta",
-            "tag": "Sensor de Porta Entrada",
+            "tag": "Sensor de Porta Entrada P001",
             "gpio": 10
         },
         {
@@ -67,7 +67,7 @@
         },
         {
             "type": "temperatura",
-            "tag": "Sensor de temperatura DHT22",
+            "tag": "Sensor de temperatura DHT22 T001",
             "gpio": 20
         }
     ]
