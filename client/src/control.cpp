@@ -2,6 +2,7 @@
 
 Control::Control(/* args */)
 {
+    people_amount = 0;
 }
 
 Control::~Control()
@@ -10,7 +11,7 @@ Control::~Control()
 
 void Control::add_new_sensors(json config_file)
 {
-    servers[config_file["nome"]] = {config_file["ip"], config_file["porta"], false, false};
+    servers[config_file["nome"]] = {config_file["ip"], config_file["porta"], false};
 
     for (const auto sensor : config_file["outputs"])
         sensors[sensor["gpio"]] = {sensor["type"], sensor["tag"], config_file["nome"], "output", false};
@@ -83,9 +84,6 @@ void Control::alarm_control(string type, bool signal)
 
 void Control::control(int gpio)
 {
-    if (sensors[gpio].mode == "output")
-        return;
-
     if (sensors[gpio].type == "fumaca")
     {
         if (sensors[gpio].state and not fire_alarmed)
@@ -121,7 +119,7 @@ void Control::control(int gpio)
 
         if (sensors[gpio].state)
         {
-            if (servers[sensors[gpio].server_flag].alarm_on)
+            if (alarm_mode)
             {
                 if (not alarmed)
                     alarm_control("alarm", true);
@@ -144,6 +142,55 @@ void Control::control(int gpio)
                 alarm_control("alarm", false);
         }
     }
+    else if (sensors[gpio].type == "contagem")
+    {
+        if (sensors[gpio].tag == "Sensor de Contagem de Pessoas Entrando no Prédio")
+            people_amount++;
+        if (sensors[gpio].tag == "Sensor de Contagem de Pessoas Saindo do Prédio" and people_amount >= 0)
+            people_amount--;
+    }
+}
+
+void Control::get_temperatures_deamon()
+{
+    while (not end_program)
+    {
+        for (auto &server : servers)
+        {
+            Socket socket(server.second.ip, server.second.port);
+
+            socket.send_data("{\"option\": \"get_temperature\"}");
+
+            auto in_data = socket.receive_data();
+
+            auto response = json::parse(in_data);
+
+            if (response.empty())
+                continue;
+
+            temperatures[server.first]["temperature"] = response["temperature"];
+            temperatures[server.first]["humidity"] = response["humidity"];
+        }
+
+        sleep(2);
+    }
+}
+
+string Control::get_temperature_info(string server_flag)
+{
+    if (temperatures.empty())
+        return "";
+
+    auto temperature_info = temperatures[server_flag];
+
+    if (temperature_info.empty())
+        return "";
+
+    ostringstream output;
+
+    output << "T " << temperature_info["temperature"] << " / H " << temperature_info["humidity"];
+
+    return output.str();
 }
 
 void Control::end_servers()
@@ -154,4 +201,19 @@ void Control::end_servers()
 
         socket.send_data("{\"option\": \"finish_program\"}");
     }
+}
+
+map<int, sensor_info> Control::get_sensors_info()
+{
+    return sensors;
+}
+
+string Control::get_people_amount()
+{
+    return to_string(people_amount);
+}
+
+string Control::get_alarm_mode()
+{
+    return alarm_mode ? "ON" : "OFF";
 }

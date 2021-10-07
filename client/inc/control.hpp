@@ -14,6 +14,8 @@
 using namespace std;
 using json = nlohmann::json;
 
+extern bool end_program;
+
 struct sensor_info
 {
     string type;
@@ -40,7 +42,6 @@ struct server_info
 {
     string ip;
     int port;
-    bool alarm_on;
     bool lamp_timer;
 } typedef server_info;
 
@@ -50,8 +51,13 @@ private:
     map<string, server_info> servers;
     map<int, sensor_info> sensors;
 
+    map<string, map<string, float>> temperatures;
+
     bool fire_alarmed;
     bool alarmed;
+    bool alarm_mode;
+
+    int people_amount;
 
     void alarm_control(string type, bool signal);
     void lamps_toggle(int gpio);
@@ -66,6 +72,13 @@ public:
     void change_sensor_state(int gpio, int state);
     void control(int gpio);
     void end_servers();
+
+    void get_temperatures_deamon();
+
+    string get_temperature_info(string server_flag);
+    map<int, sensor_info> get_sensors_info();
+    string get_people_amount();
+    string get_alarm_mode();
 };
 
 #endif
