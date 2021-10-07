@@ -58,16 +58,23 @@ string Socket::receive_data()
 {
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
+    int current_socket_id;
     int read_bytes;
 
-    if ((client_socket_id = accept(socket_id, (struct sockaddr *)&address,
-                                   (socklen_t *)&addrlen)) < 0)
+    if (server_mode)
     {
-        perror("accept");
-        exit(EXIT_FAILURE);
+        if ((client_socket_id = accept(socket_id, (struct sockaddr *)&address,
+                                       (socklen_t *)&addrlen)) < 0)
+        {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+        current_socket_id = client_socket_id;
     }
+    else
+        current_socket_id = socket_id;
 
-    if ((read_bytes = read(client_socket_id, buffer, 1024)) <= 0)
+    if ((read_bytes = read(current_socket_id, buffer, 1024)) <= 0)
     {
         perror("read");
         exit(EXIT_FAILURE);
