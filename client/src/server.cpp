@@ -16,8 +16,6 @@ void Server::start()
     {
         auto in_data = socket->receive_data();
 
-        cout << in_data << endl;
-
         auto request = json::parse(in_data);
 
         if (request["option"] == "toggle")

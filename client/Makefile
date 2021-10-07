@@ -1,5 +1,5 @@
 CC := g++
-CFLAGS := -Wall -Wno-psabi -std=c++17 -lwiringPi -lpthread
+CFLAGS := -Wall -Wno-psabi -std=c++17 -lwiringPi -lpthread -lncurses -lmenu
 
 SRCFILES := $(wildcard src/*.cpp)
 
