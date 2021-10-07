@@ -86,6 +86,8 @@ GPIO::GPIO(json config_file)
         sensors[sensor_info["gpio"]] = {sensor_info["gpio"], sensor_info["tag"], sensor_info["type"], start_time};
 
         pinMode(gpio_to_wiringpi_pin[sensor_info["gpio"]], INPUT);
+        digitalWrite(gpio_to_wiringpi_pin[sensor_info["gpio"]], 0);
+
         wiringPiISR(gpio_to_wiringpi_pin[sensor_info["gpio"]], INT_EDGE_BOTH,
                     pin_event_handler[sensor_info["gpio"].get<int>()]);
     }

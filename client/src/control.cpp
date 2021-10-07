@@ -146,7 +146,7 @@ void Control::control(int gpio)
     {
         if (sensors[gpio].tag == "Sensor de Contagem de Pessoas Entrando no Prédio")
             people_amount++;
-        if (sensors[gpio].tag == "Sensor de Contagem de Pessoas Saindo do Prédio" and people_amount >= 0)
+        else if (sensors[gpio].tag == "Sensor de Contagem de Pessoas Saindo do Prédio" and people_amount > 0)
             people_amount--;
     }
 }
@@ -210,10 +210,29 @@ map<int, sensor_info> Control::get_sensors_info()
 
 string Control::get_people_amount()
 {
-    return to_string(people_amount);
+    std::ostringstream output;
+
+    output << setw(2) << setfill('0') << people_amount;
+
+    return output.str();
 }
 
 string Control::get_alarm_mode()
 {
-    return alarm_mode ? "ON" : "OFF";
+    return alarm_mode ? "ON " : "OFF";
+}
+
+void Control::set_alarm_mode()
+{
+    alarm_mode = not alarm_mode;
+}
+
+string Control::get_alarm_status()
+{
+    return alarmed ? "PRESENCE ALARM" : "               ";
+}
+
+string Control::get_fire_alarm_status()
+{
+    return fire_alarmed ? "FIRE ALARM" : "          ";
 }

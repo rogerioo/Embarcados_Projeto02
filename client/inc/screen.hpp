@@ -12,6 +12,7 @@
 #include <menu.h>
 
 #include <algorithm>
+#include <sstream>
 #include <utility>
 #include <string>
 #include <vector>
@@ -31,6 +32,7 @@ private:
     WINDOW *box_alarm_mode;
     WINDOW *box_menu;
     WINDOW *box_input;
+    WINDOW *box_alarms;
     WINDOW *box_input_devices;
     WINDOW *box_output_devices;
 
@@ -45,6 +47,7 @@ private:
     void set_header();
     void set_input_box();
     void set_devices();
+    void set_alarms();
 
     void set_input_mode(vector<string> message, int option);
 

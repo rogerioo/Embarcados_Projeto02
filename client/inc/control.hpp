@@ -5,6 +5,7 @@
 
 #include <socket.hpp>
 
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -79,6 +80,10 @@ public:
     map<int, sensor_info> get_sensors_info();
     string get_people_amount();
     string get_alarm_mode();
+    string get_alarm_status();
+    string get_fire_alarm_status();
+
+    void set_alarm_mode();
 };
 
 #endif

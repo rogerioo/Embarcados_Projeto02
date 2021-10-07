@@ -14,7 +14,7 @@
 #include <ctime>
 #include <map>
 
-#define IGNORE_CHANGE_BELOW_SEC 0.1
+#define IGNORE_CHANGE_BELOW_SEC 0.2
 #define CENTRAL_IP "192.168.0.53"
 #define CENTRAL_PORT 8030
 

@@ -12,53 +12,39 @@ Screen::Screen() : box_ground_temperature(nullptr),
                    box_alarm_mode(nullptr),
                    box_menu(nullptr),
                    box_input(nullptr),
+                   box_alarms(nullptr),
                    box_input_devices(nullptr),
                    box_output_devices(nullptr),
                    menu_controller(nullptr),
                    menu_items(nullptr),
-                   menu_options({"1. Trigger device",
+                   menu_options({"1. Toggle device",
                                  "2. Turn ON/OFF building security mode",
                                  "3. Turn ON/OFF building fire alarm",
                                  "4. Exit system"})
 {
-    try
-    {
-        initscr();
-        noecho();
-        curs_set(false);
+    initscr();
+    noecho();
+    curs_set(false);
 
-        getmaxyx(stdscr, max_height, max_width);
+    getmaxyx(stdscr, max_height, max_width);
 
-        set_header();
-        set_menu();
-        set_input_box();
-        set_devices();
+    set_header();
+    set_menu();
+    set_input_box();
+    set_devices();
+    set_alarms();
 
-        wrefresh(box_ground_temperature);
-        wrefresh(box_first_temperature);
-        wrefresh(box_people_counter);
-        wrefresh(box_alarm_mode);
+    wrefresh(box_ground_temperature);
+    wrefresh(box_first_temperature);
+    wrefresh(box_people_counter);
+    wrefresh(box_alarm_mode);
 
-        wrefresh(box_menu);
-        wrefresh(box_input);
+    wrefresh(box_menu);
+    wrefresh(box_input);
+    wrefresh(box_alarms);
 
-        wrefresh(box_input_devices);
-        wrefresh(box_output_devices);
-    }
-    catch (...)
-    {
-        delwin(box_ground_temperature);
-        delwin(box_first_temperature);
-        delwin(box_people_counter);
-        delwin(box_alarm_mode);
-        delwin(box_input);
-
-        unpost_menu(menu_controller);
-        free_menu(menu_controller);
-        delwin(box_menu);
-
-        endwin();
-    }
+    wrefresh(box_input_devices);
+    wrefresh(box_output_devices);
 }
 
 Screen::~Screen()
@@ -72,6 +58,10 @@ Screen::~Screen()
     unpost_menu(menu_controller);
     free_menu(menu_controller);
     delwin(box_menu);
+
+    delwin(box_alarms);
+    delwin(box_input_devices);
+    delwin(box_output_devices);
 
     endwin();
 }
@@ -91,10 +81,21 @@ void Screen::set_devices()
     mvwprintw(box_output_devices, 0, (max_width / 4) - title_output.size() / 2, title_output.c_str());
 }
 
+void Screen::set_alarms()
+{
+    string title{" TRIGERRED ALARMS "};
+
+    box_alarms = newwin(8, (max_width / 4) - 1, 6, (max_width / 4) * 3);
+
+    box(box_alarms, 0, 0);
+
+    mvwprintw(box_alarms, 0, (max_width / 8) - title.size() / 2, title.c_str());
+}
+
 void Screen::set_header()
 {
-    string title_et{" GROUND FLOOR TEMPERATURE / HUMIDITY "};
-    string title_it{" FIRST FLOOR TEMPERATURE / HUMIDITY "};
+    string title_et{" T/H GROUND FLOOR "};
+    string title_it{" T/H FIRST FLOOR "};
     string title_rt{" PEOPLE "};
     string title_cm{" ALARM MODE "};
 
@@ -118,11 +119,11 @@ void Screen::set_input_box()
 {
     string title{" INPUT "};
 
-    box_input = newwin(8, (max_width / 2) - 1, 6, max_width / 2);
+    box_input = newwin(8, (max_width / 4) - 1, 6, (max_width / 4) * 2);
 
     box(box_input, 0, 0);
 
-    mvwprintw(box_input, 0, (max_width / 4) - title.size() / 2, title.c_str());
+    mvwprintw(box_input, 0, (max_width / 8) - title.size() / 2, title.c_str());
 }
 
 void Screen::set_menu()
@@ -144,9 +145,6 @@ void Screen::set_menu()
     menu_items = (ITEM **)calloc(menu_options.size(), sizeof(ITEM *));
     for (size_t i = 0; i < menu_options.size(); ++i)
         menu_items[i] = new_item(menu_options[i].c_str(), "");
-
-    // item_opts_off(menu_items[4], O_SELECTABLE);
-    // item_opts_off(menu_items[5], O_SELECTABLE);
 
     /* Crate menu */
     menu_controller = new_menu((ITEM **)menu_items);
@@ -193,10 +191,10 @@ void Screen::menu_deamon()
                                1);
                 break;
             case '2':
-                set_input_mode({"Enter the Temperature"}, 2);
+                control.set_alarm_mode();
                 break;
             case '3':
-                set_input_mode({"Enter the Hysterese"}, 3);
+                control.change_sensor_state(23, not control.get_sensors_info()[23].state);
                 break;
             case '4':
                 mvwprintw(box_input, 2, 3, "System shutting down...");
@@ -234,6 +232,7 @@ void Screen::set_input_mode(vector<string> message, int option)
 
     wmove(box_input, message.size() + 3, 3);
 
+    std::map<int, sensor_info> sensors;
     int tmp_int;
 
     switch (option)
@@ -241,12 +240,15 @@ void Screen::set_input_mode(vector<string> message, int option)
     case 1:
         wscanw(box_input, "%d", &tmp_int);
 
-        // if (find(output_devices.begin(), output_devices.end(), box_input) == output_devices.end() and
-        //     find(input_devices.begin(), input_devices.end(), box_input) == input_devices.end())
-        // {
-        //     set_wrong_input_message("Wrong option.", window_height);
-        //     break;
-        // }
+        sensors = control.get_sensors_info();
+
+        if (sensors.find(tmp_int) == sensors.end())
+        {
+            set_wrong_input_message("Wrong option.", window_height);
+            break;
+        }
+
+        control.change_sensor_state(tmp_int, not sensors[tmp_int].state);
 
         break;
 
@@ -289,6 +291,7 @@ void Screen::data_update_deamon()
     int box_internal_height, box_internal_width;
     int box_input_height, box_input_width;
     int box_output_height, box_output_width;
+    int box_alarms_height, box_alarms_width;
 
     getmaxyx(box_people_counter, box_reference_height, box_reference_width);
     getmaxyx(box_alarm_mode, box_alarm_mode_height, box_alarm_mode_width);
@@ -296,28 +299,35 @@ void Screen::data_update_deamon()
     getmaxyx(box_first_temperature, box_internal_height, box_internal_width);
     getmaxyx(box_input_devices, box_input_height, box_input_width);
     getmaxyx(box_output_devices, box_output_height, box_output_width);
+    getmaxyx(box_alarms, box_alarms_height, box_alarms_width);
 
     while (not end_program)
     {
-        mvwprintw(box_ground_temperature, 2, (box_external_width / 2) - 6, control.get_temperature_info("Térreo").c_str());
-        mvwprintw(box_first_temperature, 2, (box_internal_width / 2) - 6, control.get_temperature_info("1º Andar").c_str());
-        mvwprintw(box_people_counter, 2, (box_reference_width / 2) - 2, control.get_people_amount().c_str());
-        mvwprintw(box_alarm_mode, 2, (box_alarm_mode_width / 2) - 4, control.get_alarm_mode().c_str());
+        mvwprintw(box_ground_temperature, 2, (box_external_width / 2) - 8, control.get_temperature_info("Térreo").c_str());
+        mvwprintw(box_first_temperature, 2, (box_internal_width / 2) - 8, control.get_temperature_info("1º Andar").c_str());
+        mvwprintw(box_people_counter, 2, (box_reference_width / 2), control.get_people_amount().c_str());
+        mvwprintw(box_alarm_mode, 2, (box_alarm_mode_width / 2) - 2, control.get_alarm_mode().c_str());
+        mvwprintw(box_alarms, 2, (box_alarms_width / 2) - 7, control.get_alarm_status().c_str());
+        mvwprintw(box_alarms, 4, (box_alarms_width / 2) - 6, control.get_fire_alarm_status().c_str());
 
         auto count_input = 2;
         auto count_output = 2;
         for (const auto &sensor : control.get_sensors_info())
         {
+            ostringstream output;
+
+            output << sensor.second.tag << " (" << sensor.first << ")";
+
             if (sensor.second.mode == "output")
             {
-                mvwprintw(box_output_devices, count_output, 2, "                                                       ");
-                mvwprintw(box_output_devices, count_output, 2, sensor.second.tag.c_str());
+                mvwprintw(box_output_devices, count_output, 2, "                                                        ");
+                mvwprintw(box_output_devices, count_output, 2, output.str().c_str());
                 mvwprintw(box_output_devices, count_output++, box_output_width - 4, (sensor.second.state ? "ON " : "OFF"));
             }
             else
             {
                 mvwprintw(box_input_devices, count_input, 2, "                                                       ");
-                mvwprintw(box_input_devices, count_input, 2, sensor.second.tag.c_str());
+                mvwprintw(box_input_devices, count_input, 2, output.str().c_str());
                 mvwprintw(box_input_devices, count_input++, box_input_width - 4, (sensor.second.state ? "ON " : "OFF"));
             }
         }
@@ -329,6 +339,8 @@ void Screen::data_update_deamon()
 
         wrefresh(box_output_devices);
         wrefresh(box_input_devices);
+
+        wrefresh(box_alarms);
 
         sleep(1);
     }
