@@ -19,7 +19,13 @@ void quit(int signal)
 {
     end_program = true;
 
+    server_run->join();
+
     delete server_run;
+
+    delete server;
+
+    exit(0);
 }
 
 int main(int argc, char const *argv[])

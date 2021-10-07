@@ -8,8 +8,9 @@ DHT22::DHT22(int dht_pin)
 map<string, float> DHT22::get_temperature()
 {
     map<string, float> output_data{{"temperature", -1}, {"humidity", -1}};
+    int retries = 20;
 
-    while (output_data["temperature"] == -1)
+    while (output_data["temperature"] == -1 or retries-- == 0)
     {
         output_data = read_dht_data();
         delay(WAIT_TIME);

@@ -2,17 +2,20 @@
 
 Server::Server(string config_file_path)
 {
-    gpio = new GPIO(config_file_path);
+    ifstream sfs(config_file_path);
+    json config_file = json::parse(sfs);
 
-    socket = new Socket("", 8080);
+    Socket socket_init(CENTRAL_IP, CENTRAL_PORT);
+    socket_init.send_data("{\"option\": \"start_program\", \"config_file\": " + config_file.dump() + " }");
 
-    dht22 = new DHT22(28);
+    gpio = new GPIO(config_file);
+
+    socket = new Socket("", config_file["porta"]);
 }
 
 Server::~Server()
 {
     delete socket;
-    delete dht22;
     delete gpio;
 }
 
@@ -29,11 +32,18 @@ void Server::run()
 
         else if (request["option"] == "get_temperature")
         {
-            auto data = dht22->get_temperature();
+            auto data = gpio->get_temperature();
 
             json response(data);
 
             socket->send_data(response.dump());
+        }
+        else if (request["option"] == "finish_program")
+        {
+            socket->close_client_connection();
+            kill(getppid(), SIGINT);
+            sleep(2);
+            break;
         }
 
         socket->close_client_connection();

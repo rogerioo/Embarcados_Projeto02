@@ -1,6 +1,6 @@
 {
-    "ip": "192.168.0.53",
-    "porta": 10226,
+    "ip": "192.168.0.22",
+    "porta": 8031,
     "nome": "1º Andar",
     "outputs": [
         {
@@ -14,7 +14,7 @@
             "gpio": 25
         },
         {
-            "type": "lampada",
+            "type": "lampada corredor",
             "tag": "Lâmpadas do Corredor",
             "gpio": 8
         },
